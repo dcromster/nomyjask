@@ -17,7 +17,7 @@ This starter kit to start programming json api in your project
 ## Files:
 * api.js - main application;
 * config.js - here you must write paths to external API files;
-* api_external.js - exaple of external API file;
+* api_external.js - example of external API file;
 * api_external2.js - another example with 2 functions.
 
 ## Test it!
@@ -30,6 +30,7 @@ curl -X POST http://localhost:3000/api -d 'data={"action":"user_password_reset",
 ## Base API calls:
 All base API calls return hash: 
 > { result: 'result of request or error text', status: 'status of request: "ok" or "error"'}
+
 * user_login - login. Returns a session id.
 * user_register - Register user. Returns 'ok'.
 * user_password_reset - Reset password. Returns hash of new password.
@@ -46,7 +47,7 @@ I'll think about it :)
 
 # <a name="sql"></a>SQL
 
-CREATE TABLE IF NOT EXISTS `users` (
+> CREATE TABLE IF NOT EXISTS `users` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `email` varchar(256) NOT NULL,
   `password` varchar(256) NOT NULL,
