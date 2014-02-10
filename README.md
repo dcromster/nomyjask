@@ -3,11 +3,11 @@ nomyjask
 
 node + mysql json api starter kit
 
-*[About](#about)
-*[How to use](#howtouse)
-*[Author](#author)
-*[ToDo](#todo)
-*[Database](#sql)
+* [About](#about)
+* [How to use](#howtouse)
+* [Author](#author)
+* [ToDo](#todo)
+* [Database](#sql)
 
 # <a name="about"></a>About
 This starter kit to start programming json api in your project
