@@ -1,4 +1,4 @@
-// 100214
+// 110214
 
 var express = require('express');
 var http = require('http');
@@ -7,35 +7,27 @@ var routes = require('routes');
 var app = express();
 var dateFormat = require('dateformat');
 
+var config = require('./config.js');
+
 app.use(express.bodyParser());
+app.set('port', config.application.port);
 
-app.set('port', 3000);
+var mysql = require('mysql');
+var db = mysql.createConnection(config.mysql);
 
-var mysql      = require('mysql');
-    var db = mysql.createConnection({
-	    host     : 'localhost',
-	    user     : 'user',
-	    password : 'password',
-	    database : 'database',
-	    //~ debug : true,
-    });
+db.connect(function(err) {
+	if ( !err ) {
+		console.log("Connected to MySQL");
+	} else if ( err ) {
+		console.log(err);
+	}
+});
 
-    db.connect(function(err) {
-      if ( !err ) {
-	console.log("Connected to MySQL");
-      } else if ( err ) {
-	console.log(err);
-      }
-    });
-
-var salt = 'hqgUAeOrY25t3knXhOhPHzQQsCcoJOUiphd5mv0UeEOuxuPPpKWxIL32pDDvVufDIHMfqX0wmE55pEP3R8XAjKojTd1yDqhjvANc';
+var salt = config.application.salt;
 var md5 = require('MD5');
 
 var api_commands = {}; // хэш с командами для API
-
 var api_commands_external = {};// = require('./api_external.js');
-
-var config = require('./config.js');
 var external_apis = []; // храним подключенные API
 
 http.createServer(app).listen(app.get('port'), function() {
@@ -48,22 +40,21 @@ http.createServer(app).listen(app.get('port'), function() {
     api_commands['user_password_reset'] = 'user_password_reset(res, data.login, data.password)';
     // присоединяем сторонние
     for (index = 0; index < config.apis.length; ++index) {
-	try {
-	    external_apis[index] = require('./'+config.apis[index]);
-	    api_commands = merge_options(api_commands, external_apis[index]['api_commands']);
-	    // перебрать все ключи и добавлять только те, кто не api_commands - добавляем функции из внешних API
-	    for (var key in external_apis[index]) {
-		if (key != 'api_commands') {
-			api_commands_external[key] = external_apis[index][key];
-		};
-	    }
-	}
-	catch (e) {
-	    console.log("Can't find external API module")
-	    console.log(e)
-	}
+			try {
+			    external_apis[index] = require('./'+config.apis[index]);
+			    api_commands = merge_options(api_commands, external_apis[index]['api_commands']);
+			    // перебрать все ключи и добавлять только те, кто не api_commands - добавляем функции из внешних API
+			    for (var key in external_apis[index]) {
+						if (key != 'api_commands') {
+							api_commands_external[key] = external_apis[index][key];
+						};
+			    }
+			}
+			catch (e) {
+			    console.log("Can't find external API module")
+			    console.log(e)
+			}
     };
-
     api_commands = merge_options(api_commands, api_commands_external.api_commands);
 });
 
@@ -71,24 +62,27 @@ http.createServer(app).listen(app.get('port'), function() {
 //----------------------------------------------------------------------
 app.use(function(req,res, next) {
     var was_action = 0;
-    console.log("\nRequest:"+req.url);
-    console.log('API request');
+    //~ console.log("\nRequest:"+req.url);
+    //~ console.log('API request');
     var result = {};
 
-    console.log('req.body');
-    console.log(req.body.data);
     if (req.body.data === undefined) { res.send(500, 'data undefined')}; // FIXIT - сделать по другому
     var data = JSON.parse(req.body.data);
     if (!data) {
-	result.status = 'error';
-	result.result = 'no data';
-	console.log('No data');
+			result.status = 'error';
+			result.result = 'no data';
+			console.log('No data');
     } else {
-	var data = JSON.parse(req.body.data);
-	console.log('!Run');
-	console.log(data.action);
-	eval(api_commands[data.action]); // выполняем команды
+			var data = JSON.parse(req.body.data);
+			if (api_commands[data.action] === undefined) {
+				result.status = 'error';
+		    result.result = perror(0);
+		    res.json(result);
+			} else {
+				eval(api_commands[data.action]); // выполняем команды
+			};
     };
+
 });
 //----------------------------------------------------------------------
 function user_password_reset(res, login, password) {
@@ -185,7 +179,7 @@ function user_register(res, login, password) {
     };
 
 	var querystring = 'select id from users where email = ?';
-	db.query(querystring, [login], function(err, rows, fields) { // !!! так работает, но опасно
+	db.query(querystring, [login], function(err, rows, fields) {
 	    if (err) throw err;
 	    if (rows[0] === undefined) { // пользователя нет - регистрируем
 			querystring = 'insert into users (email,password,register_date,last_action) values (?,?,?,?)';

@@ -7,6 +7,7 @@ node + mysql json api starter kit
 * [How to use](#howtouse)
 * [Author](#author)
 * [ToDo](#todo)
+* [History](#history)
 * [Database](#sql)
 
 # <a name="about"></a>About
@@ -44,6 +45,13 @@ I'll think about it :)
 
 * Translate comments in api.js;
 * Some 'FIXIT' to fix.
+
+# <a name="history"></a>History
+
+* 110211 
+ Bug fixed: return error if API command din't exists;
+ New: All application configs now in config.js.
+* 100211 - Start
 
 # <a name="sql"></a>SQL
 
