@@ -48,10 +48,10 @@ I'll think about it :)
 
 # <a name="history"></a>History
 
-* 110211 
+* 110214 
 ** Bug fixed: return error if API command din't exists;
 ** New: All application configs now in config.js.
-* 100211 - Start
+* 100214 - Start
 
 # <a name="sql"></a>SQL
 
